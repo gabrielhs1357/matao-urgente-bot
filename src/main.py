@@ -11,9 +11,8 @@ from openai import OpenAI
 load_dotenv('../.env')
 
 MODEL = 'gpt-4'
-# BASE_PROMPT = ('Crie uma chamada que chame atenção do público para essa notícia usando no máximo {0} caracteres: {1}. '
-#                'Use o máximo de caracteres possíveis.')
-BASE_PROMPT = 'Crie uma chamada que chame atenção do público para essa notícia usando no máximo {0} caracteres: {1}.'
+BASE_PROMPT = ('Leia essa notícia {0} e crie um pequeno resumo que chame a atenção do público para ler ela. Use no '
+               'máximo {1} caracteres, com emojis e hashtags.')
 BASE_TWEET = '{0}\n\n{1}'
 MT_URGENTE_URL = 'https://noticias.mturgentesys.com.br/search/all/1.json?x={0}'
 
@@ -58,71 +57,115 @@ def ask_gpt(client, prompt):
     return response_message
 
 
-def get_last_5_minutes_news():
+def get_future_news():
     current_time = int(time.time())
-    initial_time = current_time - 300
 
-    print('current_time = ', current_time)
-    print('initial_time = ', initial_time)
+    print('Getting future news using current_time as "{0}" -> "{1}"'.format(current_time, time.ctime(current_time)))
 
-    # prod:
-    news = requests.get(MT_URGENTE_URL.format(current_time))
-    news_json = news.json()
+    try:
+        news = requests.get(MT_URGENTE_URL.format(current_time))
 
-    # local:
-    # news_file = open('news.json')
-    # news_json = json.load(news_file)
+        news_json = news.json()
 
-    news_list = [
-        news_json[news_id] for news_id in news_json
-        if news_json[news_id]['categoriaName'] != 'Publicidade' and
-           news_json[news_id]['subcategoriaName'] != 'Falecimentos' and
-           initial_time <= news_json[news_id]['publicar'] < current_time
-    ]
+        news_list = [
+            news_json[news_id] for news_id in news_json
+            if news_json[news_id]['categoriaName'] != 'Publicidade' and
+               news_json[news_id]['subcategoriaName'] != 'Falecimentos' and
+               news_json[news_id]['publicar'] >= current_time
+        ]
 
-    return news_list
+        return news_list
+    except Exception as e:
+        print('Error when getting future news: ', e)
+        return None
 
 
-def find_and_tweet_news():
-    news = get_last_5_minutes_news()
+def find_and_save_future_news():
+    news = get_future_news()
+
+    print('Saving future news...')
 
     if not news:
         return
+    try:
+        with open('src/data/news.json', 'w+') as news_file:
+            json.dump(news, news_file)
 
-    client = get_tweepy_client()
-    openai_client = get_openai_client()
+    except Exception as e:
+        print('Error when saving news: ', e)
 
-    for news_item in news:
-        news_url = news_item['url']
 
-        max_characters = 278 - len(news_url)
+def get_next_minute_news():
+    current_time = int(time.time())
+    next_minute_time = current_time + 60
 
-        prompt = BASE_PROMPT.format(max_characters, news_url)
+    print('Getting next minute news using current_time as "{0}" -> "{1}" and next_minute_time as "{2}" -> "{3}"'.format(
+        current_time, time.ctime(current_time), next_minute_time, time.ctime(next_minute_time)
+    ))
 
-        response = ask_gpt(openai_client, prompt)
+    try:
+        news = open('src/data/news.json', 'r')
 
-        tweet = BASE_TWEET.format(response, news_url)
+        news_json = json.load(news)
 
-        print('tweet = ', tweet)
+        next_minute_news_list = [
+            news_item for news_item in news_json
+            if news_item['publicar'] <= next_minute_time
+        ]
 
-        # prod:
-        client.create_tweet(text=tweet)
+        print('Found {0} next minute news'.format(len(next_minute_news_list)))
 
-        if len(news) > 1:
-            time.sleep(5)
+        return next_minute_news_list
+    except Exception as e:
+        print('Error when getting next minute news: ', e)
+        return None
+
+
+def tweet_next_minute_news():
+    try:
+        next_minute_news = get_next_minute_news()
+
+        if not next_minute_news:
+            return
+
+        client = get_tweepy_client()
+
+        openai_client = get_openai_client()
+
+        for news_item in next_minute_news:
+            news_url = news_item['url']
+
+            max_characters = 278 - len(news_url)
+
+            prompt = BASE_PROMPT.format(news_url, max_characters)
+
+            response = ask_gpt(openai_client, prompt)
+
+            tweet_message = BASE_TWEET.format(response, news_url)
+
+            print('Tweet message:\n', tweet_message)
+
+            client.create_tweet(text=tweet_message)
+
+            if len(next_minute_news) > 1:
+                time.sleep(5)
+
+        print('Tweeted {0} new(s)!'.format(len(next_minute_news)))
+    except Exception as e:
+        print('Error when Tweeting next minute news: ', e)
 
 
 def run_scheduler():
-    # prod:
-    find_and_tweet_news()
-    schedule.every(5).minutes.do(find_and_tweet_news)
+    schedule.every(10).minutes.do(find_and_save_future_news)
+    schedule.every().minute.do(tweet_next_minute_news)
 
-    # dev:
-    # schedule.every(5).seconds.do(find_and_tweet_news)
+    # find_and_save_future_news()
+    # tweet_next_minute_news()
 
     while True:
         schedule.run_pending()
 
 
 if __name__ == '__main__':
+    find_and_save_future_news()
     run_scheduler()
