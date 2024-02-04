@@ -5,14 +5,17 @@ import time
 import requests
 import schedule
 import tweepy
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from openai import OpenAI
+from selenium import webdriver
 
 load_dotenv('../.env')
 
 MODEL = 'gpt-4'
-BASE_PROMPT = ('Leia essa notícia {0} e crie um pequeno resumo que chame a atenção do público para ler ela. Use no '
-               'máximo {1} caracteres, com emojis e hashtags.')
+BASE_PROMPT = (
+    'Crie um resumo dessa notícia que chame a atenção do público. Use um emoji e duas hashtags. '
+    'Sua resposta deve ter no máximo {0} caracteres. Aqui está a notícia:\n\n"{1}"')
 BASE_TWEET = '{0}\n\n{1}'
 MT_URGENTE_URL = 'https://noticias.mturgentesys.com.br/search/all/1.json?x={0}'
 
@@ -135,13 +138,20 @@ def tweet_next_minute_news():
         for news_item in next_minute_news:
             news_url = news_item['url']
 
-            max_characters = 278 - len(news_url)
+            full_text = get_news_text(news_url)
 
-            prompt = BASE_PROMPT.format(news_url, max_characters)
+            if not full_text:
+                return
+
+            tiny_url = get_tiny_url(news_url)
+
+            max_characters = 278 - len(tiny_url)
+
+            prompt = BASE_PROMPT.format(max_characters, full_text)
 
             response = ask_gpt(openai_client, prompt)
 
-            tweet_message = BASE_TWEET.format(response, news_url)
+            tweet_message = BASE_TWEET.format(response, tiny_url)
 
             print('Tweet message:\n', tweet_message)
 
@@ -155,9 +165,62 @@ def tweet_next_minute_news():
         print('Error when Tweeting next minute news: ', e)
 
 
+def get_news_text(news_url):
+    try:
+        print('Getting news text from "{0}"'.format(news_url))
+
+        options = webdriver.ChromeOptions()
+
+        options.add_argument("--headless=new")
+
+        drive = webdriver.Chrome(options=options)
+
+        drive.get(news_url)
+
+        news_content = drive.page_source
+
+        soup = BeautifulSoup(news_content, 'html.parser')
+
+        paragraphs = soup.find_all('p', class_='texto')
+
+        if not paragraphs:
+            print('No paragraphs with "texto" class found.')
+            return
+
+        full_text = ''
+
+        for paragraph in paragraphs:
+            full_text += paragraph.text + ' '
+
+        return full_text
+
+    except Exception as e:
+        print('Error when getting news text from "{0}": '.format(news_url), e)
+        return None
+
+
+def get_tiny_url(url):
+    try:
+        print('Getting tiny url for "{0}"'.format(url))
+
+        tiny_url_api_key = os.environ['TINY_URL_API_KEY']
+
+        params = {
+            'api_token': tiny_url_api_key,
+        }
+
+        json_data = {
+            'url': url
+        }
+
+        tiny_url = requests.post('https://api.tinyurl.com/create', params=params, json=json_data)
+
+        return tiny_url.json()['data']['tiny_url']
+    except Exception as e:
+        print('Error when getting tiny url: ', e)
+
+
 def run_scheduler():
-    find_and_save_future_news()
-    
     schedule.every(10).minutes.do(find_and_save_future_news)
     schedule.every().minute.do(tweet_next_minute_news)
 
@@ -166,7 +229,6 @@ def run_scheduler():
 
 
 if __name__ == '__main__':
-    # find_and_save_future_news()
+    find_and_save_future_news()
     # tweet_next_minute_news()
-
     run_scheduler()
