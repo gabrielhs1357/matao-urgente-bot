@@ -173,11 +173,15 @@ def get_news_text(news_url):
 
         options.add_argument("--headless=new")
 
-        drive = webdriver.Chrome(options=options)
+        driver = webdriver.Chrome(options=options)
 
-        drive.get(news_url)
+        driver.implicitly_wait(5)
 
-        news_content = drive.page_source
+        driver.get(news_url)
+
+        driver.find_element('class name', 'show-shell')
+
+        news_content = driver.page_source
 
         soup = BeautifulSoup(news_content, 'html.parser')
 
