@@ -156,6 +156,8 @@ def tweet_next_minute_news():
 
 
 def run_scheduler():
+    find_and_save_future_news()
+    
     schedule.every(10).minutes.do(find_and_save_future_news)
     schedule.every().minute.do(tweet_next_minute_news)
 
