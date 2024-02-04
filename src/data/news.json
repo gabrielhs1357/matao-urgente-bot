@@ -1,2 +1,17 @@
-{
-}
+[
+  {
+    "idMateria": 1706964883,
+    "pathJson": "https://noticias.mturgentesys.com.br/materias/2024-02/2024-02-03/n/1706964883.json",
+    "titulo": "Caminhão bi-trem derruba fiações elétrica e telefônica no Jardim Popular",
+    "url": "https://www.mataourgente.com.br/noticias/1706964883/caminhao-bi-trem-derruba-fiacoes-eletrica-e-telefonica-no-jardim-popular.html",
+    "chamada": "A reportagem do Matão Urgente flagrou um caminhão (bri-trem) enroscado nas fiações elétricas e telefonia no cruzamento da Rua João Augusto de Arruda com a Avenida Alagoas, no Jardim Popular. O motorista pediu ajuda de populares para a remoção dos cabos.\r\n",
+    "categoriaId": "4",
+    "categoriaName": "Polícia",
+    "categoriaLinkName": "policia",
+    "subcategoriaId": "27",
+    "subcategoriaName": "Noticia",
+    "subcategoriaLinkName": "noticia",
+    "publicar": 1706982632,
+    "capa": "https://assets.mturgentesys.com.br/materias/65be3793d77b6e365e6fe367/materiacapa/materias-24-02-03-09-55-0261.webp"
+  }
+]

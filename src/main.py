@@ -1,18 +1,23 @@
 import json
 import os
 import time
+from selenium import webdriver
+import chromedriver_autoinstaller
 
 import requests
 import schedule
 import tweepy
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from openai import OpenAI
 
 load_dotenv('../.env')
+chromedriver_autoinstaller.install()
 
 MODEL = 'gpt-4'
-BASE_PROMPT = ('Leia essa notícia {0} e crie um pequeno resumo que chame a atenção do público para ler ela. Use no '
-               'máximo {1} caracteres, com emojis e hashtags.')
+BASE_PROMPT = (
+    'Crie um resumo dessa notícia que chame a atenção do público. Use no máximo {0} caracteres, com emojis e hashtags. '
+    'Aqui está a notícia: "{1}"')
 BASE_TWEET = '{0}\n\n{1}'
 MT_URGENTE_URL = 'https://noticias.mturgentesys.com.br/search/all/1.json?x={0}'
 
@@ -135,9 +140,32 @@ def tweet_next_minute_news():
         for news_item in next_minute_news:
             news_url = news_item['url']
 
+            options = webdriver.ChromeOptions()
+
+            options.add_argument("--headless=new")
+
+            drive = webdriver.Chrome(options=options)
+
+            drive.get(news_url)
+
+            news_content = drive.page_source
+
+            soup = BeautifulSoup(news_content, 'html.parser')
+
+            paragraphs = soup.find_all('p', class_='texto')
+
+            if not paragraphs:
+                print('No paragraphs with "texto" class found.')
+                return
+
+            full_text = ''
+
+            for paragraph in paragraphs:
+                full_text += paragraph.text + ' '
+
             max_characters = 278 - len(news_url)
 
-            prompt = BASE_PROMPT.format(news_url, max_characters)
+            prompt = BASE_PROMPT.format(max_characters, full_text)
 
             response = ask_gpt(openai_client, prompt)
 
@@ -159,13 +187,11 @@ def run_scheduler():
     schedule.every(10).minutes.do(find_and_save_future_news)
     schedule.every().minute.do(tweet_next_minute_news)
 
-    # find_and_save_future_news()
-    # tweet_next_minute_news()
-
     while True:
         schedule.run_pending()
 
 
 if __name__ == '__main__':
-    find_and_save_future_news()
-    run_scheduler()
+    # find_and_save_future_news()
+    tweet_next_minute_news()
+    # run_scheduler()
