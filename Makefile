@@ -10,3 +10,7 @@ environment:
 .PHONY: requirements-update
 requirements-update:
 	pip freeze > requirements.txt
+
+.PHONY: install
+install:
+	pip install -r requirements.txt
