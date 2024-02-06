@@ -233,6 +233,9 @@ def run_scheduler():
 
 
 if __name__ == '__main__':
+    tweepy_client = get_tweepy_client()
+    tweepy_client.create_tweet(text='Hello, world!')
+
     find_and_save_future_news()
     # tweet_next_minute_news()
     run_scheduler()
