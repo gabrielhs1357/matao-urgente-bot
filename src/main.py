@@ -14,7 +14,6 @@ from selenium import webdriver
 
 logging.basicConfig(
     level=logging.INFO,
-    format='[%(levelname)s] %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout)
     ]
@@ -90,7 +89,7 @@ def get_future_news():
 
         return news_list
     except Exception as e:
-        logging.error('Error when getting future news: ', e)
+        logging.error('Error when getting future news: ' + e)
         return None
 
 
@@ -106,7 +105,7 @@ def find_and_save_future_news():
             json.dump(news, news_file)
 
     except Exception as e:
-        logging.error('Error when saving news: ', e)
+        logging.error('Error when saving news: ' + e)
 
 
 def get_next_minute_news():
@@ -132,7 +131,7 @@ def get_next_minute_news():
 
         return next_minute_news_list
     except Exception as e:
-        logging.error('Error when getting next minute news: ', e)
+        logging.error('Error when getting next minute news: ' + e)
         return None
 
 
@@ -165,7 +164,7 @@ def tweet_next_minute_news():
 
             tweet_message = BASE_TWEET.format(response, tiny_url)
 
-            logging.info('Tweet message:\n', tweet_message)
+            logging.info('Tweet message:\n' + tweet_message)
 
             client.create_tweet(text=tweet_message)
 
@@ -174,7 +173,7 @@ def tweet_next_minute_news():
 
         logging.info('Tweeted {0} new(s)!'.format(len(next_minute_news)))
     except Exception as e:
-        logging.error('Error when Tweeting next minute news: ', e)
+        logging.error('Error when Tweeting next minute news: ' + e)
 
 
 def get_news_text(news_url):
@@ -233,7 +232,7 @@ def get_tiny_url(url):
 
         return tiny_url.json()['data']['tiny_url']
     except Exception as e:
-        logging.error('Error when getting tiny url: ', e)
+        logging.error('Error when getting tiny url: ' + e)
 
 
 def run_scheduler():
