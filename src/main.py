@@ -1,5 +1,7 @@
 import json
+import logging
 import os
+import sys
 import time
 
 import requests
@@ -9,6 +11,14 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from openai import OpenAI
 from selenium import webdriver
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(levelname)s] %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
 load_dotenv('../.env')
 
@@ -63,7 +73,8 @@ def ask_gpt(client, prompt):
 def get_future_news():
     current_time = int(time.time())
 
-    print('Getting future news using current_time as "{0}" -> "{1}"'.format(current_time, time.ctime(current_time)))
+    logging.info(
+        'Getting future news using current_time as "{0}" -> "{1}"'.format(current_time, time.ctime(current_time)))
 
     try:
         news = requests.get(MT_URGENTE_URL.format(current_time))
@@ -79,14 +90,14 @@ def get_future_news():
 
         return news_list
     except Exception as e:
-        print('Error when getting future news: ', e)
+        logging.error('Error when getting future news: ', e)
         return None
 
 
 def find_and_save_future_news():
     news = get_future_news()
 
-    print('Saving future news...')
+    logging.info('Saving future news...')
 
     if not news:
         return
@@ -95,16 +106,17 @@ def find_and_save_future_news():
             json.dump(news, news_file)
 
     except Exception as e:
-        print('Error when saving news: ', e)
+        logging.error('Error when saving news: ', e)
 
 
 def get_next_minute_news():
     current_time = int(time.time())
     next_minute_time = current_time + 60
 
-    print('Getting next minute news using current_time as "{0}" -> "{1}" and next_minute_time as "{2}" -> "{3}"'.format(
-        current_time, time.ctime(current_time), next_minute_time, time.ctime(next_minute_time)
-    ))
+    logging.info(
+        'Getting next minute news using current_time as "{0}" -> "{1}" and next_minute_time as "{2}" -> "{3}"'.format(
+            current_time, time.ctime(current_time), next_minute_time, time.ctime(next_minute_time)
+        ))
 
     try:
         news = open('src/data/news.json', 'r')
@@ -116,11 +128,11 @@ def get_next_minute_news():
             if current_time <= news_item['publicar'] < next_minute_time
         ]
 
-        print('Found {0} next minute news'.format(len(next_minute_news_list)))
+        logging.info('Found {0} next minute news'.format(len(next_minute_news_list)))
 
         return next_minute_news_list
     except Exception as e:
-        print('Error when getting next minute news: ', e)
+        logging.error('Error when getting next minute news: ', e)
         return None
 
 
@@ -153,21 +165,21 @@ def tweet_next_minute_news():
 
             tweet_message = BASE_TWEET.format(response, tiny_url)
 
-            print('Tweet message:\n', tweet_message)
+            logging.info('Tweet message:\n', tweet_message)
 
             client.create_tweet(text=tweet_message)
 
             if len(next_minute_news) > 1:
                 time.sleep(5)
 
-        print('Tweeted {0} new(s)!'.format(len(next_minute_news)))
+        logging.info('Tweeted {0} new(s)!'.format(len(next_minute_news)))
     except Exception as e:
-        print('Error when Tweeting next minute news: ', e)
+        logging.error('Error when Tweeting next minute news: ', e)
 
 
 def get_news_text(news_url):
     try:
-        print('Getting news text from "{0}"'.format(news_url))
+        logging.info('Getting news text from "{0}"'.format(news_url))
 
         options = webdriver.ChromeOptions()
 
@@ -188,7 +200,7 @@ def get_news_text(news_url):
         paragraphs = soup.find_all('p', class_='texto')
 
         if not paragraphs:
-            print('No paragraphs with "texto" class found.')
+            logging.info('No paragraphs with "texto" class found.')
             return
 
         full_text = ''
@@ -199,13 +211,13 @@ def get_news_text(news_url):
         return full_text
 
     except Exception as e:
-        print('Error when getting news text from "{0}": '.format(news_url), e)
+        logging.error('Error when getting news text from "{0}": '.format(news_url), e)
         return None
 
 
 def get_tiny_url(url):
     try:
-        print('Getting tiny url for "{0}"'.format(url))
+        logging.info('Getting tiny url for "{0}"'.format(url))
 
         tiny_url_api_key = os.environ['TINY_URL_API_KEY']
 
@@ -221,7 +233,7 @@ def get_tiny_url(url):
 
         return tiny_url.json()['data']['tiny_url']
     except Exception as e:
-        print('Error when getting tiny url: ', e)
+        logging.error('Error when getting tiny url: ', e)
 
 
 def run_scheduler():
@@ -233,9 +245,6 @@ def run_scheduler():
 
 
 if __name__ == '__main__':
-    tweepy_client = get_tweepy_client()
-    tweepy_client.create_tweet(text='Hello, world!')
-
     find_and_save_future_news()
     # tweet_next_minute_news()
     run_scheduler()
