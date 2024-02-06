@@ -196,6 +196,8 @@ def get_news_text(news_url):
 
         news_content = driver.page_source
 
+        driver.quit()
+
         soup = BeautifulSoup(news_content, 'html.parser')
 
         paragraphs = soup.find_all('p', class_='texto')
