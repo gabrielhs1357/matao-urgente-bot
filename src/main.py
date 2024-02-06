@@ -19,7 +19,7 @@ logging.basicConfig(
     ]
 )
 
-load_dotenv('../.env')
+load_dotenv()
 
 MODEL = 'gpt-4'
 BASE_PROMPT = (
