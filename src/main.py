@@ -124,7 +124,7 @@ def get_next_minute_news():
 
         next_minute_news_list = [
             news_item for news_item in news_json
-            # if current_time <= news_item['publicar'] < next_minute_time
+            if current_time <= news_item['publicar'] < next_minute_time
         ]
 
         logging.info('Found {0} next minute news'.format(len(next_minute_news_list)))
@@ -246,6 +246,6 @@ def run_scheduler():
 
 
 if __name__ == '__main__':
-    # find_and_save_future_news()
-    tweet_next_minute_news()
-    # run_scheduler()
+    find_and_save_future_news()
+    # tweet_next_minute_news()
+    run_scheduler()
