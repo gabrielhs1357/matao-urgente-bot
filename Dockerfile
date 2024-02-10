@@ -15,6 +15,8 @@ ENV PATH /home/root/.local/bin:${PATH}
 
 RUN pip install -r requirements.txt
 
+WORKDIR /app
+
 COPY . .
 
 CMD ["python3", "./src/main.py"]

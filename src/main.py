@@ -18,12 +18,10 @@ if __name__ == '__main__':
     cron = CronTab(user=True)
 
     script_name = 'find_and_tweet_next_news.py'
+    
+    script_path = '/app/src/scripts/' + script_name
 
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-
-    script_path = os.path.join(current_dir, 'scripts', script_name)
-
-    logs_path = os.path.join(current_dir, 'logs', 'cron.log')
+    logs_path = '/app/src/logs/cron.log'
 
     logging.info('Script name {0} -> {1} script path'.format(script_name, script_path))
 
