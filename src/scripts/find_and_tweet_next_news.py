@@ -26,6 +26,7 @@ BASE_PROMPT = (
     'Sua resposta deve ter no máximo {0} caracteres. Aqui está a notícia:\n\n"{1}"')
 BASE_TWEET = '{0}\n\n{1}'
 MT_URGENTE_URL = 'https://noticias.mturgentesys.com.br/search/all/1.json?x={0}'
+FINAL_TIME_SECONDS = 3600  # 1 hour
 
 
 def get_tweepy_client():
@@ -52,13 +53,13 @@ def get_openai_client():
     return client
 
 
-def get_next_minute_news():
+def get_next_news():
     current_time = int(time.time())
-    next_minute_time = current_time + 60
+    final_time = current_time + FINAL_TIME_SECONDS
 
     logging.info(
         'Getting next minute news using current_time as "{0}" -> "{1}" and next_minute_time as "{2}" -> "{3}"'.format(
-            current_time, time.ctime(current_time), next_minute_time, time.ctime(next_minute_time)
+            current_time, time.ctime(current_time), final_time, time.ctime(final_time)
         ))
 
     try:
@@ -68,7 +69,7 @@ def get_next_minute_news():
 
         next_minute_news_list = [
             news_item for news_item in news_json
-            if current_time <= news_item['publicar'] < next_minute_time
+            if current_time <= news_item['publicar'] < final_time
         ]
 
         logging.info('Found {0} next minute news'.format(len(next_minute_news_list)))
@@ -95,9 +96,9 @@ def ask_gpt(client, prompt):
     return response_message
 
 
-def tweet_next_minute_news():
+def run():
     try:
-        next_minute_news = get_next_minute_news()
+        next_minute_news = get_next_news()
 
         if not next_minute_news:
             return
@@ -105,6 +106,8 @@ def tweet_next_minute_news():
         client = get_tweepy_client()
 
         openai_client = get_openai_client()
+
+        count = 1
 
         for news_item in next_minute_news:
             news_url = news_item['url']
@@ -128,8 +131,9 @@ def tweet_next_minute_news():
 
             client.create_tweet(text=tweet_message)
 
-            if len(next_minute_news) > 1:
-                time.sleep(5)
+            if count != len(next_minute_news):  # TODO: refactor
+                count += 1
+                time.sleep(60)
 
         logging.info('Tweeted {0} new(s)!'.format(len(next_minute_news)))
     except Exception as e:
@@ -184,6 +188,8 @@ def get_tiny_url(url):
 
         tiny_url_api_key = os.environ['TINY_URL_API_KEY']
 
+        logging.info('tiny_url_api_key: ' + tiny_url_api_key)
+
         params = {
             'api_token': tiny_url_api_key,
         }
@@ -197,10 +203,3 @@ def get_tiny_url(url):
         return tiny_url.json()['data']['tiny_url']
     except Exception as e:
         logging.error('Error when getting tiny url: ' + e)
-
-
-# tweet_next_minute_news()
-
-tweepy_client = get_tweepy_client()
-
-tweepy_client.create_tweet(text='Hello world!')

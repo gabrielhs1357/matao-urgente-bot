@@ -51,7 +51,7 @@ def get_future_news():
         return None
 
 
-def find_and_save_future_news():
+def run():
     news = get_future_news()
 
     logging.info('Saving future news...')
@@ -67,11 +67,3 @@ def find_and_save_future_news():
 
     except Exception as e:
         logging.error('Error when saving news: ' + e)
-
-
-find_and_save_future_news()
-
-# with open(news_path, 'w+') as news_file:
-#     logging.info('news_path: {}'.format(news_path))
-#
-#     news_file.write('hello world')
