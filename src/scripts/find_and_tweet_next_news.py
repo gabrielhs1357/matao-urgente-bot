@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import json
 import logging
 import os
@@ -54,29 +55,47 @@ def get_openai_client():
 
 
 def get_next_news():
-    current_time = int(time.time())
-    final_time = current_time + FINAL_TIME_SECONDS
+    logging.info('Getting next news...')
 
-    logging.info(
-        'Getting next minute news using current_time as "{0}" -> "{1}" and next_minute_time as "{2}" -> "{3}"'.format(
-            current_time, time.ctime(current_time), final_time, time.ctime(final_time)
-        ))
+    current_hour = time.localtime().tm_hour
+    current_minutes = time.localtime().tm_min
+    current_datetime = datetime.now()
+
+    initial_minutes = 0 if current_minutes < 30 else 30
+    initial_datetime = current_datetime.replace(hour=current_hour, minute=initial_minutes, second=0, microsecond=0)
+    initial_epoch = int(initial_datetime.timestamp())
+
+    logging.info("initial_datetime: {0}".format(initial_datetime))
+    logging.info("initial_epoch: {0}".format(initial_epoch))
+
+    final_hour = current_hour + 1 if initial_minutes == 30 else current_hour
+    final_hour = 0 if final_hour == 24 else final_hour
+    final_minutes = 0 if initial_minutes == 30 else 30
+    final_datetime = current_datetime.replace(hour=final_hour, minute=final_minutes, second=0, microsecond=0)
+
+    if final_hour == 0:
+        final_datetime = final_datetime + timedelta(days=1)
+
+    final_epoch = int(final_datetime.timestamp())
+
+    logging.info("final_datetime: {0}".format(final_datetime))
+    logging.info("final_epoch: {0}".format(final_epoch))
 
     try:
         news = open('src/data/news.json', 'r')
 
         news_json = json.load(news)
 
-        next_minute_news_list = [
+        next_news_list = [
             news_item for news_item in news_json
-            if current_time <= news_item['publicar'] < final_time
+            if initial_epoch <= news_item['publicar'] < final_epoch
         ]
 
-        logging.info('Found {0} next minute news'.format(len(next_minute_news_list)))
+        logging.info('Found {0} next news'.format(len(next_news_list)))
 
-        return next_minute_news_list
+        return next_news_list
     except Exception as e:
-        logging.error('Error when getting next minute news: ' + e)
+        logging.error('Error when getting next news: ' + e)
         return None
 
 
@@ -98,9 +117,9 @@ def ask_gpt(client, prompt):
 
 def run():
     try:
-        next_minute_news = get_next_news()
+        next_news = get_next_news()
 
-        if not next_minute_news:
+        if not next_news:
             return
 
         client = get_tweepy_client()
@@ -109,7 +128,7 @@ def run():
 
         count = 1
 
-        for news_item in next_minute_news:
+        for news_item in next_news:
             news_url = news_item['url']
 
             full_text = get_news_text(news_url)
@@ -131,13 +150,13 @@ def run():
 
             client.create_tweet(text=tweet_message)
 
-            if count != len(next_minute_news):  # TODO: refactor
+            if count != len(next_news):
                 count += 1
-                time.sleep(60)
+                time.sleep(300)
 
-        logging.info('Tweeted {0} new(s)!'.format(len(next_minute_news)))
+        logging.info('Tweeted {0} new(s)!'.format(len(next_news)))
     except Exception as e:
-        logging.error('Error when Tweeting next minute news: ' + e)
+        logging.error('Error when Tweeting next news: ' + e)
 
 
 def get_news_text(news_url):
@@ -187,8 +206,6 @@ def get_tiny_url(url):
         logging.info('Getting tiny url for "{0}"'.format(url))
 
         tiny_url_api_key = os.environ['TINY_URL_API_KEY']
-
-        logging.info('tiny_url_api_key: ' + tiny_url_api_key)
 
         params = {
             'api_token': tiny_url_api_key,

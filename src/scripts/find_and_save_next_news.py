@@ -30,11 +30,7 @@ def get_future_news():
     try:
         news = requests.get(MT_URGENTE_URL.format(current_time))
 
-        logging.info('news: {}'.format(news.status_code))
-
         news_json = news.json()
-
-        logging.info('news_json: {}'.format(news_json))
 
         news_list = [
             news_json[news_id] for news_id in news_json
@@ -43,7 +39,7 @@ def get_future_news():
                news_json[news_id]['publicar'] >= current_time
         ]
 
-        logging.info('news_list: {}'.format(news_list))
+        logging.info('Found {0} future news'.format(len(news_list)))
 
         return news_list
     except Exception as e:

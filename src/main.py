@@ -1,9 +1,7 @@
 import logging
-import os
 import sys
 
 from dotenv import load_dotenv
-from crontab import CronTab
 
 logging.basicConfig(
     level=logging.INFO,
