@@ -34,7 +34,7 @@
     
 ## :closed_book: License
 
-This project is under the [MIT license](https://github.com/gabrielhs1357/matao-urgente-bot/blob/master/LICENSE).
+This project is under the [MIT license](https://github.com/gabrielhs1357/matao-urgente-bot/blob/main/LICENSE).
 
 ---
 
