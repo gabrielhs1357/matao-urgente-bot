@@ -5,24 +5,18 @@
 # Matão Urgente Bot
 
 [![Author](https://img.shields.io/badge/author-Gabriel%20Silva-1099d0?style=flat-square)](https://github.com/gabrielhs1357)
-[![License](https://img.shields.io/github/license/gabrielhs1357/matao-urgente-bot?color=1099d0&style=flat-square)](https://github.com/gabrielhs1357/matao-urgente-bot/blob/main/LICENSE)
+[![GitHub](https://img.shields.io/github/license/gabrielhs1357/matao-urgente-bot?style=flat-square&color=1099d0&)](./LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/gabrielhs1357/matao-urgente-bot?color=1099d0&style=flat-square)](https://github.com/gabrielhs1357/matao-urgente-bot/commits/main)
 
-> Perfil (não oficial) onde compartilho as últimas notícias do https://site.mataourgente.com.br. Desenvolvido em Python usando a API do ChatGPT 4 🤖
+> Perfil (não oficial) onde compartilho as últimas notícias do https://site.mataourgente.com.br. Desenvolvido em Python usando a API do ChatGPT 4 🤖. Você pode me encontrar em https://twitter.com/mataourgentebot.
 
 <p align="center"><img src=".github/tweet-screenshot.png?raw=true" width="500"/></p>
 
-> Você pode me encontrar em https://twitter.com/mataourgentebot.
-
 ---
 
-## :pushpin: Table of Contents
+## 🤔 How does it work?
 
-> TO DO
-
-## :rocket: Features
-
-> TO DO
+<p align="center"><img src=".github/excalidraw.png?raw=true" width="1000"/></p>
 
 ## :computer: Tools
 
