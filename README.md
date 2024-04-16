@@ -5,8 +5,8 @@
 # Matão Urgente Bot
 
 [![Author](https://img.shields.io/badge/author-Gabriel%20Silva-1099d0?style=flat-square)](https://github.com/gabrielhs1357)
-[![License](https://img.shields.io/github/license/gabrielhs1357/twitch-viewer-bot?color=1099d0&style=flat-square)](https://github.com/gabrielhs1357/twitch-viewer-bot/blob/main/LICENSE)
-[![Last commit](https://img.shields.io/github/last-commit/gabrielhs1357/twitch-viewer-bot?color=1099d0&style=flat-square)](https://github.com/gabrielhs1357/twitch-viewer-bot/commits/main)
+[![License](https://img.shields.io/github/license/gabrielhs1357/matao-urgente-bot?color=1099d0&style=flat-square)](https://github.com/gabrielhs1357/matao-urgente-bot/blob/main/LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/gabrielhs1357/matao-urgente-bot?color=1099d0&style=flat-square)](https://github.com/gabrielhs1357/matao-urgente-bot/commits/main)
 
 > Perfil (não oficial) onde compartilho as últimas notícias do https://site.mataourgente.com.br. Desenvolvido em Python usando a API do ChatGPT 4 🤖
 
