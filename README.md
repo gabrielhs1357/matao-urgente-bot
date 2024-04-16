@@ -10,7 +10,7 @@
 
 > Perfil (não oficial) onde compartilho as últimas notícias do https://site.mataourgente.com.br. Desenvolvido em Python usando a API do ChatGPT 4 🤖
 
-<p align="center"><img src=".github/tweet-screenshot.png?raw=true" width="1000"/></p>
+<p align="center"><img src=".github/tweet-screenshot.png?raw=true" width="500"/></p>
 
 > Você pode me encontrar em https://twitter.com/mataourgentebot.
 
