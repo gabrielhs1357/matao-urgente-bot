@@ -22,7 +22,7 @@
 
 ## :computer: Tools
 
-- [Python](https://www.python.org), [OpenAI](https://pypi.org/project/openai/), [Tweepy](https://pypi.org/project/tweepy/), [BeautifulSoup](https://pypi.org/project/beautifulsoup4/), and [Requests](https://pypi.org/project/requests/).
+- [Python](https://www.python.org), [OpenAI](https://pypi.org/project/openai/), [Tweepy](https://pypi.org/project/tweepy/), [BeautifulSoup](https://pypi.org/project/beautifulsoup4/) and [Requests](https://pypi.org/project/requests/).
 
 ## :construction_worker: Getting Started
 
