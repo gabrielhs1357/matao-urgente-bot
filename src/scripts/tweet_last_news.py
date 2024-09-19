@@ -14,7 +14,7 @@ logging = logging.getLogger(__name__)
 MODEL = os.environ["GPT_MODEL"]
 BASE_PROMPT = (
     "Crie um resumo dessa notícia que chame a atenção do público. Use um emoji e duas hashtags. "
-    f'Sua resposta deve ter no máximo {0} caracteres. Aqui está a notícia: "{1}"'
+    "Sua resposta deve ter no máximo {0} caracteres. Aqui está a notícia: \"{1}\"."
 )
 BASE_TWEET = "{0}\n\n{1}"
 MT_URGENTE_URL = "https://noticias.mturgentesys.com.br/search/all/1.json?x={0}"
@@ -72,7 +72,7 @@ def get_last_hour_news():
         last_hour_news_list = [
             news_item
             for news_item in news_json
-            # if start_epoch <= news_item["publicar"] < final_epoch
+            if start_epoch <= news_item["publicar"] < final_epoch
         ]
 
         logging.info(f"Found {len(last_hour_news_list)} last news.")
